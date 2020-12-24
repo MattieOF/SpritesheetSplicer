@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -67,9 +68,8 @@ namespace SpritesheetSplicer
             spritesheet?.Dispose();
         }
 
-        private void sliceButton_Click(object sender, EventArgs e)
-        {
-            // Possible improvements: use threading so that the UI doesn't freeze and we can have a progress bar
+        private void SliceSprites()
+        {// Possible improvements: use threading so that the UI doesn't freeze and we can have a progress bar
             // Also, have a dropdown so we can select the format for the individual sprites to be saved as
             // Thanks to u/infamous_ruslan for a tip to use Bitmap.Clone, making the code much MUCH cleaner
 
@@ -82,7 +82,7 @@ namespace SpritesheetSplicer
 
             // Check path is filled in
             // TODO check path is valid?
-            if(string.IsNullOrWhiteSpace(outputFolderField.Text))
+            if (string.IsNullOrWhiteSpace(outputFolderField.Text))
             {
                 MessageBox.Show("Output directory is empty", "Error splicing", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -155,13 +155,16 @@ namespace SpritesheetSplicer
                 {
                     bm.Save(outputFolderField.Text + "//Sprite_" + saveIterator.ToString() + ".png", ImageFormat.Png);
                     saveIterator++;
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     if (ex.Message == "A generic error occurred in GDI+.")
                     {
                         MessageBox.Show("A \"generic error\" occured in GDI+. This often means your antivirus is blocking the apps ability to " +
                             "save files where you have asked for them to be saved, so try temporarily disabling your antivirus.", "Error splicing", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    } else
+                        return;
+                    }
+                    else
                     {
                         MessageBox.Show("An error occured while saving your sprites. Press OK to see the exception. " +
                             "Create an issue on the GitHub page, if you want.", "Error splicing", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -171,6 +174,13 @@ namespace SpritesheetSplicer
             }
 
             statusBarLabel.Text = "Successfully spliced " + saveIterator.ToString() + " sprites!";
+        }
+
+        private void sliceButton_Click(object sender, EventArgs e)
+        {
+            Thread spliceThread = new Thread(SliceSprites);
+            spliceThread.Name = "Sprite Slicing Thread";
+            spliceThread.Start();
         }
     }
 }
