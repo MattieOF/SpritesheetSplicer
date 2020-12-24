@@ -24,10 +24,13 @@ namespace SpritesheetSplicer
     {
         private Image spritesheet;
         private bool loadedSpritesheet = false;
+        private ImageFormat format;
+        private string formatExtension;
 
         public Main()
         {
             InitializeComponent();
+            spriteFormatBox.SelectedIndex = 0;
         }
 
         private void browseOutputFolderButton_Click(object sender, EventArgs e)
@@ -78,11 +81,39 @@ namespace SpritesheetSplicer
 
         private void sliceButton_Click(object sender, EventArgs e)
         {
-            //Thread spliceThread = new Thread(SliceSprites);
-            //spliceThread.Name = "Sprite Slicing Thread";
-            //spliceThread.Start();
-
+            GetFormat();
             if (!slicingBackgroundWorker.IsBusy) slicingBackgroundWorker.RunWorkerAsync();
+        }
+
+        private void GetFormat()
+        {
+            switch(spriteFormatBox.SelectedIndex)
+            {
+                case 0:
+                    format = ImageFormat.Png;
+                    formatExtension = ".png";
+                    break;
+                case 1:
+                    format = ImageFormat.Jpeg;
+                    formatExtension = ".jpeg";
+                    break;
+                case 2:
+                    format = ImageFormat.Bmp;
+                    formatExtension = ".bmp";
+                    break;
+                case 3:
+                    format = ImageFormat.Tiff;
+                    formatExtension = ".tiff";
+                    break;
+                case 4:
+                    format = ImageFormat.Icon;
+                    formatExtension = ".ico";
+                    break;
+                default:
+                    format = ImageFormat.Png;
+                    formatExtension = ".png";
+                    break;
+            }
         }
 
         private void slicingBackgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
@@ -186,7 +217,7 @@ namespace SpritesheetSplicer
                 try
                 {
                     if (worker.CancellationPending) e.Cancel = true;
-                    bm.Save(outputFolderField.Text + "//Sprite_" + saveIterator.ToString() + ".png", ImageFormat.Png);
+                    bm.Save(outputFolderField.Text + "//Sprite_" + saveIterator.ToString() + formatExtension, format);
                     float progress = (float)(saveIterator + 1) / (float)(totalSprites);
                     progress *= 100;
                     worker.ReportProgress((int)progress);

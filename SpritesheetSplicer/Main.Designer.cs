@@ -47,6 +47,7 @@ namespace SpritesheetSplicer
             this.browseOutputFolderButton = new System.Windows.Forms.Button();
             this.sliceButton = new System.Windows.Forms.Button();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.statusProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.statusBarLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.marginLeftCheckbox = new System.Windows.Forms.CheckBox();
             this.marginRightCheckbox = new System.Windows.Forms.CheckBox();
@@ -57,8 +58,9 @@ namespace SpritesheetSplicer
             this.label10 = new System.Windows.Forms.Label();
             this.cellCountX = new System.Windows.Forms.NumericUpDown();
             this.label11 = new System.Windows.Forms.Label();
-            this.statusProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.slicingBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.label12 = new System.Windows.Forms.Label();
+            this.spriteFormatBox = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.spritesheetImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.spriteSizeX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.spriteSizeY)).BeginInit();
@@ -255,6 +257,12 @@ namespace SpritesheetSplicer
             this.statusStrip.TabIndex = 17;
             this.statusStrip.Text = "statusStrip1";
             // 
+            // statusProgressBar
+            // 
+            this.statusProgressBar.Name = "statusProgressBar";
+            this.statusProgressBar.Size = new System.Drawing.Size(100, 16);
+            this.statusProgressBar.Visible = false;
+            // 
             // statusBarLabel
             // 
             this.statusBarLabel.Name = "statusBarLabel";
@@ -354,12 +362,6 @@ namespace SpritesheetSplicer
             this.label11.TabIndex = 22;
             this.label11.Text = "Cell Count";
             // 
-            // statusProgressBar
-            // 
-            this.statusProgressBar.Name = "statusProgressBar";
-            this.statusProgressBar.Size = new System.Drawing.Size(100, 16);
-            this.statusProgressBar.Visible = false;
-            // 
             // slicingBackgroundWorker
             // 
             this.slicingBackgroundWorker.WorkerReportsProgress = true;
@@ -368,11 +370,37 @@ namespace SpritesheetSplicer
             this.slicingBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.slicingBackgroundWorker_ProgressChanged);
             this.slicingBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.slicingBackgroundWorker_RunWorkerCompleted);
             // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Arial Nova Cond", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(301, 449);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(182, 26);
+            this.label12.TabIndex = 27;
+            this.label12.Text = "Sliced Sprite Format";
+            // 
+            // spriteFormatBox
+            // 
+            this.spriteFormatBox.FormattingEnabled = true;
+            this.spriteFormatBox.Items.AddRange(new object[] {
+            "PNG",
+            "JPEG",
+            "BMP",
+            "TIFF",
+            "ICO"});
+            this.spriteFormatBox.Location = new System.Drawing.Point(310, 478);
+            this.spriteFormatBox.Name = "spriteFormatBox";
+            this.spriteFormatBox.Size = new System.Drawing.Size(162, 21);
+            this.spriteFormatBox.TabIndex = 28;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(484, 591);
+            this.Controls.Add(this.spriteFormatBox);
+            this.Controls.Add(this.label12);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.cellCountY);
             this.Controls.Add(this.label10);
@@ -452,6 +480,8 @@ namespace SpritesheetSplicer
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.ToolStripProgressBar statusProgressBar;
         private System.ComponentModel.BackgroundWorker slicingBackgroundWorker;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.ComboBox spriteFormatBox;
     }
 }
 
