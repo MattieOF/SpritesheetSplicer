@@ -57,6 +57,8 @@ namespace SpritesheetSplicer
             this.label10 = new System.Windows.Forms.Label();
             this.cellCountX = new System.Windows.Forms.NumericUpDown();
             this.label11 = new System.Windows.Forms.Label();
+            this.statusProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.slicingBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.spritesheetImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.spriteSizeX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.spriteSizeY)).BeginInit();
@@ -245,6 +247,7 @@ namespace SpritesheetSplicer
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusProgressBar,
             this.statusBarLabel});
             this.statusStrip.Location = new System.Drawing.Point(0, 569);
             this.statusStrip.Name = "statusStrip";
@@ -351,6 +354,20 @@ namespace SpritesheetSplicer
             this.label11.TabIndex = 22;
             this.label11.Text = "Cell Count";
             // 
+            // statusProgressBar
+            // 
+            this.statusProgressBar.Name = "statusProgressBar";
+            this.statusProgressBar.Size = new System.Drawing.Size(100, 16);
+            this.statusProgressBar.Visible = false;
+            // 
+            // slicingBackgroundWorker
+            // 
+            this.slicingBackgroundWorker.WorkerReportsProgress = true;
+            this.slicingBackgroundWorker.WorkerSupportsCancellation = true;
+            this.slicingBackgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.slicingBackgroundWorker_DoWork);
+            this.slicingBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.slicingBackgroundWorker_ProgressChanged);
+            this.slicingBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.slicingBackgroundWorker_RunWorkerCompleted);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -433,6 +450,8 @@ namespace SpritesheetSplicer
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.NumericUpDown cellCountX;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.ToolStripProgressBar statusProgressBar;
+        private System.ComponentModel.BackgroundWorker slicingBackgroundWorker;
     }
 }
 

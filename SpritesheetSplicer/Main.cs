@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using WK.Libraries.BetterFolderBrowserNS;
 using System.Drawing.Imaging;
+using System.ComponentModel;
 
 namespace SpritesheetSplicer
 {
@@ -68,10 +69,28 @@ namespace SpritesheetSplicer
             spritesheet?.Dispose();
         }
 
-        private void SliceSprites()
-        {// Possible improvements: use threading so that the UI doesn't freeze and we can have a progress bar
+        private void SetProgress(int current, int max, string label)
+        {
+            statusProgressBar.Maximum = max;
+            statusProgressBar.Value = current;
+            statusBarLabel.Text = label;
+        }
+
+        private void sliceButton_Click(object sender, EventArgs e)
+        {
+            //Thread spliceThread = new Thread(SliceSprites);
+            //spliceThread.Name = "Sprite Slicing Thread";
+            //spliceThread.Start();
+
+            if (!slicingBackgroundWorker.IsBusy) slicingBackgroundWorker.RunWorkerAsync();
+        }
+
+        private void slicingBackgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
             // Also, have a dropdown so we can select the format for the individual sprites to be saved as
             // Thanks to u/infamous_ruslan for a tip to use Bitmap.Clone, making the code much MUCH cleaner
+
+            BackgroundWorker worker = sender as BackgroundWorker;
 
             // Check spritesheet has been loaded
             if (!loadedSpritesheet)
@@ -85,6 +104,8 @@ namespace SpritesheetSplicer
             if (string.IsNullOrWhiteSpace(outputFolderField.Text))
             {
                 MessageBox.Show("Output directory is empty", "Error splicing", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
+                return;
             }
 
             // Create vectors from user inputs
@@ -95,6 +116,7 @@ namespace SpritesheetSplicer
             if (cellSize.x == 0 || cellSize.y == 0)
             {
                 MessageBox.Show("Cell size is 0", "Error splicing", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
                 return;
             }
 
@@ -105,6 +127,7 @@ namespace SpritesheetSplicer
             if (!widthMatches)
             {
                 MessageBox.Show("Width (" + spritesheet.Width + ") doesn't match expected width", "Error splicing", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
                 return;
             }
 
@@ -114,18 +137,26 @@ namespace SpritesheetSplicer
             if (!heightMatches)
             {
                 MessageBox.Show("Height (" + spritesheet.Height + ") doesn't match expected height", "Error splicing", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
                 return;
             }
 
             Bitmap bitmap = new Bitmap(spritesheet);
             List<Bitmap> splicedSprites = new List<Bitmap>();
 
-            int xPos = 0, yPos = 0;
+            int totalSprites = (int)(cellCountX.Value * cellCountY.Value);
+
+            int xPos = 0, yPos = 0, spriteIterator = 0;
             for (int i = 0; i < cellCountY.Value; i++)
             {
                 xPos = 0;
                 for (int j = 0; j < cellCountX.Value; j++)
                 {
+                    if (worker.CancellationPending) e.Cancel = true;
+
+                    float progress = (float)(spriteIterator + 1) / (float)(totalSprites);
+                    progress *= 100;
+                    worker.ReportProgress((int)progress);
                     Bitmap sprite;
 
                     // Get current xPos and yPos
@@ -143,6 +174,7 @@ namespace SpritesheetSplicer
                     // Clone sprite from spritesheet
                     sprite = bitmap.Clone(spriteBounds, bitmap.PixelFormat);
 
+                    spriteIterator++;
                     splicedSprites.Add(sprite);
                 }
             }
@@ -153,7 +185,11 @@ namespace SpritesheetSplicer
             {
                 try
                 {
+                    if (worker.CancellationPending) e.Cancel = true;
                     bm.Save(outputFolderField.Text + "//Sprite_" + saveIterator.ToString() + ".png", ImageFormat.Png);
+                    float progress = (float)(saveIterator + 1) / (float)(totalSprites);
+                    progress *= 100;
+                    worker.ReportProgress((int)progress);
                     saveIterator++;
                 }
                 catch (Exception ex)
@@ -162,6 +198,7 @@ namespace SpritesheetSplicer
                     {
                         MessageBox.Show("A \"generic error\" occured in GDI+. This often means your antivirus is blocking the apps ability to " +
                             "save files where you have asked for them to be saved, so try temporarily disabling your antivirus.", "Error splicing", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        e.Cancel = true;
                         return;
                     }
                     else
@@ -172,15 +209,28 @@ namespace SpritesheetSplicer
                     }
                 }
             }
-
-            statusBarLabel.Text = "Successfully spliced " + saveIterator.ToString() + " sprites!";
         }
 
-        private void sliceButton_Click(object sender, EventArgs e)
+        private void slicingBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            Thread spliceThread = new Thread(SliceSprites);
-            spliceThread.Name = "Sprite Slicing Thread";
-            spliceThread.Start();
+            statusProgressBar.Visible = true;
+            int totalSprites = (int)(cellCountX.Value * cellCountY.Value);
+            float normalCount = (float)(e.ProgressPercentage) / 100f;
+            normalCount *= (float)totalSprites;
+            SetProgress(e.ProgressPercentage, 100, "Sprite " + ((int)normalCount).ToString() + "/" + totalSprites.ToString());
+        }
+
+        private void slicingBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            statusProgressBar.Visible = false;
+            if (e.Cancelled)
+            {
+                statusBarLabel.Text = "Cancelled slicing.";
+            } else
+            {
+                int totalSprites = (int)(cellCountX.Value * cellCountY.Value);
+                statusBarLabel.Text = "Completed slicing. Total: " + totalSprites.ToString() + " sprites.";
+            }
         }
     }
 }
