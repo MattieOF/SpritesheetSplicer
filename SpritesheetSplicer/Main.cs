@@ -151,8 +151,23 @@ namespace SpritesheetSplicer
             int saveIterator = 0;
             foreach (Bitmap bm in splicedSprites)
             {
-                bm.Save(outputFolderField.Text + "//Sprite_" + saveIterator.ToString() + ".png", ImageFormat.Png);
-                saveIterator++;
+                try
+                {
+                    bm.Save(outputFolderField.Text + "//Sprite_" + saveIterator.ToString() + ".png", ImageFormat.Png);
+                    saveIterator++;
+                } catch (Exception ex)
+                {
+                    if (ex.Message == "A generic error occurred in GDI+.")
+                    {
+                        MessageBox.Show("A \"generic error\" occured in GDI+. This often means your antivirus is blocking the apps ability to " +
+                            "save files where you have asked for them to be saved, so try temporarily disabling your antivirus.", "Error splicing", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    } else
+                    {
+                        MessageBox.Show("An error occured while saving your sprites. Press OK to see the exception. " +
+                            "Create an issue on the GitHub page, if you want.", "Error splicing", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(ex.Message + "\n" + ex.StackTrace, "Error splicing", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
             }
 
             statusBarLabel.Text = "Successfully spliced " + saveIterator.ToString() + " sprites!";
