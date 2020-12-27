@@ -48,7 +48,7 @@ namespace SpritesheetSplicer
         {
             OpenFileDialog spritesheetFileDialog = new OpenFileDialog();
             spritesheetFileDialog.Title = "Browse for spritesheet";
-            spritesheetFileDialog.Filter = "Image Files (BMP, JPG, PNG, TIFF)|*.BMP;*.JPG;*.PNG;*.TIFF";
+            spritesheetFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.tiff";
             spritesheetFileDialog.RestoreDirectory = true;
 
             if (spritesheetFileDialog.ShowDialog() == DialogResult.OK)
